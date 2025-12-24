@@ -97,10 +97,6 @@ class UserService {
             throw new Error("Password is required");
         }
 
-        if (Password !== ConfirmPassword) {
-            throw new Error("Password and Confirm Password must match.");
-        }
-
         if(Password.length < 8) {
             throw new Error("Password must be at least 8 characters long.");
         }
@@ -134,6 +130,10 @@ class UserService {
         const EmailPrefix = Email.split('@')[0];
         if (Password.toLowerCase().includes(EmailPrefix.toLowerCase())) {
             throw new Error("Password should not contain parts of your email.");
+        }
+
+        if (Password !== ConfirmPassword) {
+            throw new Error("Password and Confirm Password must match.");
         }
 
         const salt = await bcryptjs.genSalt(10);
