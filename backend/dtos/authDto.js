@@ -1,4 +1,4 @@
-const { IsEmail, IsNotEmpty, MinLength, MaxLength, Matches, IsIn } = require('class-validator');
+const { IsEmail, IsNotEmpty, MinLength, MaxLength, Matches, IsIn, IsNumber, IsInt } = require('class-validator');
 
 class LoginDto {
     constructor(data = {}) {
@@ -57,7 +57,30 @@ MinLength(8, { message: "Password must be at least 8 characters long." })(Regist
 
 // ConfirmPassword Validations
 IsNotEmpty({ message: "Confirm Password is required" })(RegisterDto.prototype, "ConfirmPassword");
+
+class LoanDto {
+    constructor(data = {}) {
+        this.loanAmount = data.loanAmount;
+        this.duration = data.duration;
+        this.installments = data.installments;
+    }
+}
+
+IsNotEmpty({ message: "Loan Amount is required" })(LoanDto.prototype, "loanAmount");
+IsNumber({}, { message: "Please enter a valid loan amount within the allowed range." })(LoanDto.prototype, "loanAmount");
+Min(1000, { message: "Please enter a valid loan amount within the allowed range." })(LoanDto.prototype, "loanAmount");
+Max(50000, { message: "Please enter a valid loan amount within the allowed range." })(LoanDto.prototype, "loanAmount");
+
+IsNotEmpty({ message: "Duration is required" })(LoanDto.prototype, "duration");
+IsNumber({}, { message: "Please enter a valid loan duration within the allowed range." })(LoanDto.prototype, "duration");
+Min(3, { message: "Please enter a valid loan duration within the allowed range." })(LoanDto.prototype, "duration");
+Max(24, { message: "Please enter a valid loan duration within the allowed range." })(LoanDto.prototype, "duration");
+
+
+IsNotEmpty({ message: "Installments amount is required" })(LoanDto.prototype, "installments");
+IsInt({ message: "Number of installments must be an integer (no decimals)." })(LoanDto.prototype, "installments");
 module.exports = {
     LoginDto,
-    RegisterDto
+    RegisterDto,
+    LoanDto
 };
