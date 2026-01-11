@@ -2,7 +2,7 @@ const loanRepository = require('../repositories/loanRepository');
 
 class LoanService {
     async applyForLoan(userId, loanData) {
-        const { loanAmount, duration, installments } = loanData;
+        const { loanAmount, duration, installments, status } = loanData;
 
         if (installments < duration) {
             throw new Error("Number of installments must match or be less than the selected loan duration.");
@@ -18,7 +18,8 @@ class LoanService {
             userId,
             loanAmount,
             duration,
-            installments
+            installments,
+            status: 'Pending'
         };
 
         const createdLoan = await loanRepository.createLoan(newLoan);
