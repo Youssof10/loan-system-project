@@ -4,7 +4,7 @@ class LoanService {
     async applyForLoan(userId, loanData) {
         const { loanAmount, duration, installments, status } = loanData;
 
-        if (installments < duration) {
+        if (installments > duration) {
             throw new Error("Number of installments must match or be less than the selected loan duration.");
         }
 
