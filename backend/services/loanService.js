@@ -1,4 +1,5 @@
 const loanRepository = require('../repositories/loanRepository');
+const loanStatusRepository = require('../repositories/loanStatusRepository');
 
 class LoanService {
     async applyForLoan(userId, loanData) {
@@ -14,12 +15,17 @@ class LoanService {
 
         }
 
+        const PendingLoanStatus = await loanStatusRepository.getStatusByName('Pending');
+        if (!PendingLoanStatus) {
+            throw new Error("Pending loan status not found in the system.");
+        }
+
         const newLoan = {
             userId,
             loanAmount,
             duration,
             installments,
-            status: 'Pending'
+            status: PendingLoanStatus._id
         };
 
         const createdLoan = await loanRepository.createLoan(newLoan);
