@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const Bank = require('./Bank');
+
 const userSchema = new mongoose.Schema({
     FullName: {
         type: String,
@@ -26,12 +28,9 @@ const userSchema = new mongoose.Schema({
         required: [true, "Date of Birth is required"]
     },
     BankName: {
-        type: String,
-        required: [true, "Bank Name is required"],
-        enum: {
-            values: ['CIB', 'Ahly', 'Banque Misr', 'Alex Bank', 'QNB', 'HSBC'],
-            message: '{VALUE} is not supported. Please choose a valid bank.'
-        }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Bank',
+        required: [true, "Bank Name is required"]
     },
     AccountNumber: {
         type: String,
