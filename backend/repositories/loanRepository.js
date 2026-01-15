@@ -2,11 +2,12 @@ const Loan = require('../models/Loan');
 
 class LoanRepository {
     async createLoan(loanData) {
-        return await Loan.create(loanData);
+        const loan = await Loan.create(loanData);
+        return await Loan.findById(loan._id).populate('status');
     }
 
     async findByUserId(userId) {
-        return await Loan.find({ userId });
+        return await Loan.find({ userId }).populate('status');
     }
 }
 

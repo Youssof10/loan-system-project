@@ -2,7 +2,7 @@ const LoanStatus = require('../models/LoanStatus');
 
 class LoanStatusRepository {
     async getStatusByName(statusName) {
-        return await LoanStatus.findOne({ status_name: statusName });
+        return await LoanStatus.findOne({ name: statusName });
     }
 }
 

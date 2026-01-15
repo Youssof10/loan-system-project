@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const loanstatusSchema = new mongoose.Schema({
     
-    status_name : {
+    name : {
         type: String,
         required: true,
         unique: true

@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const userRoutes = require('./routes/userRoutes');
 const loanRoutes = require('./routes/loanRoutes');
+const seedLoanStatuses = require('./seeds/statusSeeds');
 require('reflect-metadata');
 
 
@@ -25,8 +26,11 @@ app.get('/', (req, res) => {
 });
 
 mongoose.connect(process.env.MONGO_URL)
-    .then(() => {
+    .then(async () => {
         console.log('Connected to MongoDB');
+
+        await seedLoanStatuses();
+
         app.listen(PORT, () => {
             console.log(`Server is running on http://localhost:${PORT}/`);
         });
