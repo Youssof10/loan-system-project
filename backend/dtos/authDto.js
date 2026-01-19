@@ -1,4 +1,4 @@
-const { IsEmail, IsNotEmpty, MinLength, MaxLength, Matches, IsIn, IsNumber, IsInt, Min, Max } = require('class-validator');
+const { IsEmail, IsNotEmpty, MinLength, MaxLength, Matches, IsMongoId, IsNumber, IsInt, Min, Max } = require('class-validator');
 
 class LoginDto {
     constructor(data = {}) {
@@ -44,8 +44,7 @@ IsNotEmpty({ message: "Date of Birth is required" })(RegisterDto.prototype, "dat
 Matches(/^(\d{2})\/(\d{2})\/(\d{4})$/, { message: "Please enter a valid date(ex: DD/MM/YYYY)." })(RegisterDto.prototype, "dateofBirth");
 
 // BankName Validations
-IsNotEmpty({ message: "Bank Name is required" })(RegisterDto.prototype, "BankName");
-IsIn(['CIB', 'Ahly', 'Banque Misr', 'Alex Bank', 'QNB', 'HSBC'], { message: "Please choose a valid bank." })(RegisterDto.prototype, "BankName");
+IsNotEmpty({ message: "Bank selection is required" })(RegisterDto.prototype, "BankName");
 
 // AccountNumber Validations
 IsNotEmpty({ message: "Account Number is required" })(RegisterDto.prototype, "AccountNumber");

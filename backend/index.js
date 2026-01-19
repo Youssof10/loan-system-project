@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const userRoutes = require('./routes/userRoutes');
 const loanRoutes = require('./routes/loanRoutes');
 const seedLoanStatuses = require('./seeds/statusSeeds');
+const seedBanks = require('./seeds/bankSeeds');
 require('reflect-metadata');
 
 
@@ -30,6 +31,7 @@ mongoose.connect(process.env.MONGO_URL)
         console.log('Connected to MongoDB');
 
         await seedLoanStatuses();
+        await seedBanks();
 
         app.listen(PORT, () => {
             console.log(`Server is running on http://localhost:${PORT}/`);
