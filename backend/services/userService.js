@@ -1,24 +1,14 @@
 const UserRepository = require('../repositories/userRepository');
 const bcryptjs = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const Bank = require('../models/Bank');
 
 class UserService {
     async registerUser(userData) {
-        const {FullName, Email, PhoneNumber, dateofBirth, BankName, AccountNumber, Password, ConfirmPassword} = userData;
+        const { FullName, Email, PhoneNumber, dateofBirth, BankName, AccountNumber, Password, ConfirmPassword } = userData;
         const FullNameWords = FullName.trim().split(/\s+/);
         if (FullNameWords.length < 2) {
             throw new Error("Full name must contain at least two words.");
-        }
-
-        if (!FullName || FullName.trim() === "") {
-            throw new Error("FullName is required");
-        }
-
-        if(FullName.length < 3 || FullName.length > 50) {
-            throw new Error("Full name should be between 3 and 50 characters.");
-        }
-
-        if (!Email || Email.trim() === "") {
-            throw new Error("Email is required");
         }
 
         const existingEmail = await UserRepository.getUserByEmail(Email);
@@ -26,42 +16,22 @@ class UserService {
             throw new Error("This email is already in use.");
         }
 
-        if (Email.length > 100) {
-            throw new Error("Email should not exceed 100 characters.");
-        }
-
-        if (Email && !/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(Email)) {
-            throw new Error("Please fill a valid email address");
-        }
-
-        if (!PhoneNumber || PhoneNumber.trim() === "") {
-            throw new Error("Phone number is required");
-        }
-
         const existingPhone = await UserRepository.findByPhoneNumber(PhoneNumber);
         if (existingPhone) {
             throw new Error("This phone number is already in use.");
         }
 
-        if (PhoneNumber && !/^(\+20)?\d{11}$/.test(PhoneNumber)) {
-            throw new Error("Please enter a valid phone number");
-        }
-
-        if(!dateofBirth) {
-            throw new Error("Date of Birth is required");
-        }
-
-        const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-        if (!dateRegex.test(dateofBirth)) {
-            throw new Error('Please enter a valid date(ex: DD/MM/YYYY).');
+        const bank = await Bank.findOne({ bank_name: BankName });
+        if (!bank) {
+            throw new Error("Please select a valid supported bank from the list.");
         }
 
         const [day, month, year] = dateofBirth.split('/');
         const birthDate = new Date(year, month - 1, day);
-        if (birthDate.getFullYear() !== parseInt(year) || 
-            birthDate.getMonth() !== parseInt(month) - 1 || 
+        if (birthDate.getFullYear() !== parseInt(year) ||
+            birthDate.getMonth() !== parseInt(month) - 1 ||
             birthDate.getDate() !== parseInt(day)) {
-                throw new Error('Please enter a valid date(ex: DD/MM/YYYY).');
+            throw new Error('Please enter a valid date(ex: DD/MM/YYYY).');
         }
 
 
@@ -72,33 +42,8 @@ class UserService {
             age--;
         }
 
-        if(age < 21 || age > 65) {
+        if (age < 21 || age > 65) {
             throw new Error("Age must be between 21 and 65 years.");
-        }
-
-        if (!BankName || BankName.trim() === "") {
-            throw new Error("Bank Name is required");
-        }
-
-        const validBanks = ['CIB', 'Ahly', 'Banque Misr', 'Alex Bank', 'QNB', 'HSBC'];
-        if (!validBanks.includes(BankName)) {
-            throw new Error(`${BankName} is not supported. Please choose a valid bank.`);
-        }
-
-        if(!AccountNumber) {
-            throw new Error("Account Number is required");
-        }
-
-        if (!/^\d{10,16}$/.test(AccountNumber)) {
-            throw new Error("Account number must be between 10 and 16 digits and contain digits only.");
-        }
-
-        if (!Password) {
-            throw new Error("Password is required");
-        }
-
-        if(Password.length < 8) {
-            throw new Error("Password must be at least 8 characters long.");
         }
 
         if (!/[A-Z]/.test(Password)) {
@@ -112,7 +57,7 @@ class UserService {
             throw new Error('Password must contain at least one digit.');
         }
 
-        if(!/[!@#$%^&*(),.?":{}|<>]/.test(Password)) {
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(Password)) {
             throw new Error('Password must contain at least one special character.');
         }
 
@@ -144,7 +89,7 @@ class UserService {
             Email,
             PhoneNumber,
             dateofBirth: birthDate,
-            BankName,
+            BankName: bank._id,
             AccountNumber,
             Password: hashedPassword
         };
@@ -152,6 +97,23 @@ class UserService {
         const createdUser = await UserRepository.createUser(newUser);
         return createdUser;
 
+    }
+
+
+    async loginUser(Email, Password) {
+        const user = await UserRepository.getUserByEmail(Email);
+        if (!user) {
+            throw new Error("Invalid email");
+        }
+
+        const isMatch = await bcryptjs.compare(Password, user.Password);
+        if (!isMatch) {
+            throw new Error("Invalid password");
+        }
+
+        const token = jwt.sign({ userId: user._id, email: user.Email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        return { user, token };
     }
 }
 

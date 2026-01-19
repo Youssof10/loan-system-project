@@ -3,16 +3,18 @@ const User = require('../models/User');
 class UserRepository {
     async createUser(userData) {
         const user = new User(userData);
-        return await user.save();
+        await user.save();
+        // Populate BankName after saving
+        return await User.findById(user._id).populate('BankName');
     }
 
     async getUserByEmail(email) {
-        const user = await User.findOne({ Email: email });
-        return user;
+        // Populate BankName when fetching by email
+        return await User.findOne({ Email: email }).populate('BankName');
     }
 
     async findByPhoneNumber(phoneNumber) {
-        return await User.findOne({ PhoneNumber: phoneNumber });
+        return await User.findOne({ PhoneNumber: phoneNumber }).populate('BankName');
     }
 }
 
