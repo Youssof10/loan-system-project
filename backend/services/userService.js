@@ -2,6 +2,7 @@ const UserRepository = require('../repositories/userRepository');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Bank = require('../models/Bank');
+const BankRepository = require('../repositories/bankRepository');
 
 class UserService {
     async registerUser(userData) {
@@ -21,7 +22,7 @@ class UserService {
             throw new Error("This phone number is already in use.");
         }
 
-        const bank = await Bank.findOne({ bank_name: BankName });
+        const bank = await BankRepository.findByName(BankName);
         if (!bank) {
             throw new Error("Please select a valid supported bank from the list.");
         }

@@ -5,6 +5,11 @@ class LoanService {
     async applyForLoan(userId, loanData) {
         const { loanAmount, duration, installments, status } = loanData;
 
+        const existingLoan = await loanRepository.findOneByUserId(userId);
+        if (existingLoan) {
+            throw new Error("You already have an existing loan application.");
+        }
+
         if (installments > duration) {
             throw new Error("Number of installments must match or be less than the selected loan duration.");
         }

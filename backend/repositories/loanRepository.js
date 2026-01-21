@@ -9,6 +9,10 @@ class LoanRepository {
     async findByUserId(userId) {
         return await Loan.find({ userId }).populate('status');
     }
+
+    async findOneByUserId(userId) {
+        return await Loan.findOne({ userId }).populate('status');
+    }
 }
 
 module.exports = new LoanRepository();
