@@ -28,7 +28,27 @@ const loanSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    loanStartDate: {
+        type: Date,
+        required: true
+    },
+    loanEndDate: {
+        type: Date,
+        required: true
+    },
+    loanNumericId: {
+        type: Number,
+        unique: true,
+        sparse: true
     }
 })
+
+loanSchema.pre('save', async function () {
+    if (this.isNew && !this.loanNumericId) {
+        const lastLoan = await mongoose.model('Loan').findOne({}, { loanNumericId: 1 }, { sort: { loanNumericId: -1 } });
+        this.loanNumericId = lastLoan && lastLoan.loanNumericId ? lastLoan.loanNumericId + 1 : 1000;
+    }
+});
 
 module.exports = mongoose.model('Loan', loanSchema);

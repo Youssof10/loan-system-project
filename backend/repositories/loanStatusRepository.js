@@ -11,7 +11,9 @@ class LoanStatusRepository {
         const status = await LoanStatus.findOne({ name: statusName });
         if (status) {
             cache.set(statusName, status);
-            console.log(`--- Cache Set: ${statusName} stored in memory ---`);
+            console.log(`--- Cache Set: ${statusName} stored in memory with ID: ${status._id} ---`);
+        } else {
+            console.log(`--- Status NOT FOUND: ${statusName} ---`);
         }
         return status;
     }

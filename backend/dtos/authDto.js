@@ -72,6 +72,7 @@ Max(20000, { message: "Please enter a valid loan amount within the allowed range
 
 IsNotEmpty({ message: "Duration is required" })(LoanDto.prototype, "duration");
 IsNumber({}, { message: "Please enter a valid loan duration within the allowed range." })(LoanDto.prototype, "duration");
+IsInt({ message: "Duration must be an integer (no decimals)." })(LoanDto.prototype, "duration");
 Min(3, { message: "Please enter a valid loan duration within the allowed range." })(LoanDto.prototype, "duration");
 Max(24, { message: "Please enter a valid loan duration within the allowed range." })(LoanDto.prototype, "duration");
 
