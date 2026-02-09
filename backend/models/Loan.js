@@ -2,6 +2,28 @@ const mongoose = require('mongoose');
 
 const LoanStatus = require('./LoanStatus');
 
+const statusLogs = new mongoose.Schema({
+    action: {
+        type: String,
+        required: true
+    },
+    Date: {
+        type: Date,
+        default: Date.now
+    },
+    performedBy: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User' 
+    },
+    oldStatus: {
+        type: String
+    },
+    newStatus: {
+        type: String,
+        required: true
+    }
+});
+
 const loanSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -41,7 +63,8 @@ const loanSchema = new mongoose.Schema({
         type: Number,
         unique: true,
         sparse: true
-    }
+    },
+    statusHistory: [statusLogs]
 })
 
 loanSchema.pre('save', async function () {

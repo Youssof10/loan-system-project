@@ -44,7 +44,14 @@ class LoanService {
             installments: installmentsNum,
             status: PendingLoanStatus._id,
             loanStartDate,
-            loanEndDate
+            loanEndDate,
+            statusHistory: [{
+                action: "Created",
+                date: new Date(),
+                performedBy: userId,
+                oldStatus: null,
+                newStatus: "Pending"
+            }]
         };
 
         const createdLoan = await loanRepository.createLoan(newLoan);

@@ -64,6 +64,30 @@ class AdminService {
 
         return await LoanRepository.getAllForAdmin(filters);
     }
+
+    async approveLoanRequest(loanId, adminId) {
+        const loan = await LoanRepository.findById(loanId);
+        if (!loan) {
+            throw new Error("Loan request not found.");
+        }
+
+        const PendingLoanStatus = await LoanStatusRepository.getStatusByName('Pending');
+        const ApprovedLoanStatus = await LoanStatusRepository.getStatusByName('Approved');
+
+        if (loan.status.toString() !== PendingLoanStatus._id.toString()) {
+            throw new Error("Only pending loan requests can be approved.");
+        }
+
+        const logEntry = {
+            action: "Approved",
+            date: new Date(),
+            performedBy: adminId,
+            oldStatus: "Pending",
+            newStatus: "Approved"
+        };
+
+        return await LoanRepository.updateStatus(loanId, ApprovedLoanStatus._id, logEntry);
+    }
 }
 
 module.exports = new AdminService();
