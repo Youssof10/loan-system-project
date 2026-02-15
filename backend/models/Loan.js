@@ -7,13 +7,13 @@ const statusLogs = new mongoose.Schema({
         type: String,
         required: true
     },
-    Date: {
+    date: {
         type: Date,
         default: Date.now
     },
-    performedBy: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'User' 
+    performedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     },
     oldStatus: {
         type: String

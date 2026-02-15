@@ -46,7 +46,7 @@ class LoanService {
             loanStartDate,
             loanEndDate,
             statusHistory: [{
-                action: "Created",
+                action: "Submit",
                 date: new Date(),
                 performedBy: userId,
                 oldStatus: null,

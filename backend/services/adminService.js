@@ -74,12 +74,12 @@ class AdminService {
         const PendingLoanStatus = await LoanStatusRepository.getStatusByName('Pending');
         const ApprovedLoanStatus = await LoanStatusRepository.getStatusByName('Approved');
 
-        if (loan.status.toString() !== PendingLoanStatus._id.toString()) {
+        if (loan.status._id.toString() !== PendingLoanStatus._id.toString()) {
             throw new Error("Only pending loan requests can be approved.");
         }
 
         const logEntry = {
-            action: "Approved",
+            action: "Approve",
             date: new Date(),
             performedBy: adminId,
             oldStatus: "Pending",

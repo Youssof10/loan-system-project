@@ -49,6 +49,24 @@ class LoanRepository {
 
         return results;
     }
+
+    async updateStatus(loanId, newStatusId, logEntry) {
+        return await Loan.findByIdAndUpdate(
+            loanId,
+            {
+                $set: { status: newStatusId },
+                $push: { statusHistory: logEntry }
+            },
+            { new: true, runValidators: true }
+        )
+            .populate('status')
+            .populate('userId', 'FullName Email')
+            .populate('statusHistory.performedBy', 'FullName');
+    }
+
+    async findById(loanId) {
+        return await Loan.findById(loanId).populate('status');
+    }
 }
 
 module.exports = new LoanRepository();
