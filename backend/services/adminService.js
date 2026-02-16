@@ -1,5 +1,6 @@
 const LoanRepository = require('../repositories/loanRepository');
 const LoanStatusRepository = require('../repositories/loanStatusRepository');
+const emailService = require('../utils/emailService');
 const mongoose = require('mongoose');
 
 class AdminService {
@@ -86,7 +87,28 @@ class AdminService {
             newStatus: "Approved"
         };
 
-        return await LoanRepository.updateStatus(loanId, ApprovedLoanStatus._id, logEntry);
+        const updatedLoan = await LoanRepository.updateStatus(loanId, ApprovedLoanStatus._id, logEntry);
+
+        // Send email notification
+        try {
+            await emailService.sendLoanApprovalEmail(
+                updatedLoan.userId.Email,
+                updatedLoan.userId.FullName,
+                {
+                    loanNumericId: updatedLoan.loanNumericId,
+                    loanAmount: updatedLoan.loanAmount,
+                    duration: updatedLoan.duration,
+                    installments: updatedLoan.installments,
+                    loanStartDate: updatedLoan.loanStartDate,
+                    loanEndDate: updatedLoan.loanEndDate
+                }
+            );
+        } catch (emailError) {
+            console.error('Failed to send approval email:', emailError);
+            // Don't throw error - loan is still approved even if email fails
+        }
+
+        return updatedLoan;
     }
 }
 

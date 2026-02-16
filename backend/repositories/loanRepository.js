@@ -3,15 +3,24 @@ const Loan = require('../models/Loan');
 class LoanRepository {
     async createLoan(loanData) {
         const loan = await Loan.create(loanData);
-        return await Loan.findById(loan._id).populate('status');
+        return await Loan.findById(loan._id)
+            .populate('status')
+            .populate('userId', 'FullName Email')
+            .populate('statusHistory.performedBy', 'FullName');
     }
 
     async findByUserId(userId) {
-        return await Loan.find({ userId }).populate('status');
+        return await Loan.find({ userId })
+            .populate('status')
+            .populate('userId', 'FullName Email')
+            .populate('statusHistory.performedBy', 'FullName');
     }
 
     async findOneByUserId(userId) {
-        return await Loan.findOne({ userId }).populate('status');
+        return await Loan.findOne({ userId })
+            .populate('status')
+            .populate('userId', 'FullName Email')
+            .populate('statusHistory.performedBy', 'FullName');
     }
 
     async getAllForAdmin(filters = {}) {
@@ -45,6 +54,7 @@ class LoanRepository {
         const results = await Loan.find(query)
             .populate('status')
             .populate('userId', 'FullName Email')
+            .populate('statusHistory.performedBy', 'FullName')
             .sort({ createdAt: -1 });
 
         return results;
@@ -65,7 +75,10 @@ class LoanRepository {
     }
 
     async findById(loanId) {
-        return await Loan.findById(loanId).populate('status');
+        return await Loan.findById(loanId)
+            .populate('status')
+            .populate('userId', 'FullName Email')
+            .populate('statusHistory.performedBy', 'FullName');
     }
 }
 
