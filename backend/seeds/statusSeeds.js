@@ -10,10 +10,16 @@ async function seedLoanStatuses() {
         await mongoose.connect(process.env.MONGO_URL);
         console.log("Connected to MongoDB for seeding...");
 
-        await LoanStatus.deleteMany({});
-        await LoanStatus.insertMany(statuses.map(name => ({ name })));
-        console.log("Loan statuses seeded successfully.");
+        // Idempotent upsert keeps existing IDs intact
+        for (const name of statuses) {
+            await LoanStatus.updateOne(
+                { name },
+                { $setOnInsert: { name } },
+                { upsert: true }
+            );
+        }
 
+        console.log("Loan statuses seeded successfully.");
     } catch (error) {
         console.error("Error seeding loan statuses:", error);
     }

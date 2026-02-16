@@ -1,16 +1,19 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const userRoutes = require('./routes/userRoutes');
 const loanRoutes = require('./routes/loanRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const seedLoanStatuses = require('./seeds/statusSeeds');
 const seedBanks = require('./seeds/bankSeeds');
 require('reflect-metadata');
 
 
 
-dotenv.config();
+
 
 
 const app = express();
@@ -21,6 +24,7 @@ app.use(cors());
 
 app.use('/api/users', userRoutes);
 app.use('/api/loans', loanRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => {
     res.send('API is running....');
