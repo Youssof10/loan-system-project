@@ -110,6 +110,70 @@ class AdminService {
 
         return updatedLoan;
     }
+
+    async approveLoans(loanIds, adminId) {
+        if (!Array.isArray(loanIds) || loanIds.length === 0) {
+            throw new Error("No loan requests selected for approval.");
+        }
+
+        const PendingLoanStatus = await LoanStatusRepository.getStatusByName('Pending');
+        const ApprovedLoanStatus = await LoanStatusRepository.getStatusByName('Approved');
+
+        const results = [];
+        let approvedCount = 0;
+        let failed = [];
+
+        for (const loanId of loanIds) {
+            try {
+                const loan = await LoanRepository.findById(loanId);
+                if (!loan) {
+                    failed.push({ loanId, reason: "Loan request not found." });
+                    continue;
+                }
+                if (loan.status._id.toString() !== PendingLoanStatus._id.toString()) {
+                    failed.push({ loanId, reason: "Invalid status" });
+                    continue;
+                }
+                const logEntry = {
+                    action: "Approve",
+                    date: new Date(),
+                    performedBy: adminId,
+                    oldStatus: "Pending",
+                    newStatus: "Approved"
+                };
+                const updatedLoan = await LoanRepository.updateStatus(loanId, ApprovedLoanStatus._id, logEntry);
+
+                // Send email notification
+                try {
+                    await emailService.sendLoanApprovalEmail(
+                        updatedLoan.userId.Email,
+                        updatedLoan.userId.FullName,
+                        {
+                            loanNumericId: updatedLoan.loanNumericId,
+                            loanAmount: updatedLoan.loanAmount,
+                            duration: updatedLoan.duration,
+                            installments: updatedLoan.installments,
+                            loanStartDate: updatedLoan.loanStartDate,
+                            loanEndDate: updatedLoan.loanEndDate
+                        }
+                    );
+                } catch (emailError) {
+                    console.error('Failed to send approval email:', emailError);
+                }
+
+                results.push(updatedLoan);
+                approvedCount++;
+            } catch (err) {
+                failed.push({ loanId, reason: err.message });
+            }
+        }
+
+        return {
+            message: `${approvedCount} loan request(s) approved successfully.`,
+            approved: results,
+            failed
+        };
+    }
 }
 
 module.exports = new AdminService();

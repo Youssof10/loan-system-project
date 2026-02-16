@@ -35,27 +35,31 @@ class AdminController {
         }
     }
 
-    async approveLoan(req, res) {
+    async approveLoans(req, res) {
         try {
-            const loanId = req.params.id;
+            let loanIds = req.body.loanIds;
             const adminId = req.user.id;
 
-            const updatedLoan = await adminService.approveLoanRequest(loanId, adminId);
-
-            res.status(200).json({
-                message: "The loan request has been approved successfully.",
-                loan: updatedLoan
-            });
-        } catch (error) {
-            // Handle specific business logic errors
-            if (error.message === "Loan request not found.") {
-                return res.status(404).json({ error: error.message });
+            // Support both single and bulk approval
+            if (!Array.isArray(loanIds)) {
+                if (typeof loanIds === 'string') {
+                    loanIds = [loanIds];
+                } else if (req.body.loanId) {
+                    loanIds = [req.body.loanId];
+                } else {
+                    return res.status(400).json({ error: "No loan requests selected for approval." });
+                }
+            }
+            if (loanIds.length === 0) {
+                return res.status(400).json({ error: "No loan requests selected for approval." });
             }
 
+            const result = await adminService.approveLoans(loanIds, adminId);
+            res.status(200).json(result);
+        } catch (error) {
             if (error.message === "Only pending loan requests can be approved.") {
                 return res.status(400).json({ error: "Invalid status" });
             }
-
             // Network/MongoDB connection errors
             if (error.name === 'MongoNetworkError' || error.name === 'MongoServerError') {
                 return res.status(503).json({
